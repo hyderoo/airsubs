@@ -1,0 +1,57 @@
+:root {
+  --ink: #101828;
+  --muted: #667085;
+  --line: #e4e7ec;
+  --accent: #155eef;
+  --accent-ink: #ffffff;
+  --bg: #ffffff;
+}
+* { box-sizing: border-box; }
+body {
+  width: 300px;
+  margin: 0;
+  padding: 16px;
+  font: 14px/1.45 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+h1 { font-size: 15px; margin: 0; font-weight: 650; letter-spacing: 0.1px; }
+.dot {
+  margin-left: auto; width: 9px; height: 9px; border-radius: 50%;
+  background: #d0d5dd;
+}
+.dot.on { background: #12b76a; }
+.dot.warn { background: #f79009; }
+.dot.err { background: #f04438; }
+.status { margin: 2px 0 14px; color: var(--muted); font-size: 12.5px; min-height: 17px; }
+.field { display: block; margin-bottom: 12px; }
+.field span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; color: var(--ink); font-size: 13.5px;
+}
+select:focus { outline: 2px solid rgba(21, 94, 239, 0.25); border-color: var(--accent); }
+.check { display: flex; gap: 8px; align-items: center; margin: 4px 0 14px; font-size: 13px; color: var(--ink); }
+.check input { accent-color: var(--accent); }
+button { font: inherit; cursor: pointer; }
+.primary {
+  width: 100%; padding: 10px; border: 0; border-radius: 8px;
+  background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 14px;
+}
+.primary:hover { background: #004eeb; }
+.primary:disabled { background: #b2ccff; cursor: default; }
+.ghost {
+  width: 100%; padding: 10px; margin-top: 8px; border: 1px solid var(--line); border-radius: 8px;
+  background: #fff; color: var(--ink); font-weight: 600;
+}
+.ghost:hover { background: #f9fafb; }
+.warning {
+  margin-top: 12px; padding: 10px 12px; border-radius: 8px;
+  background: #fffaeb; border: 1px solid #fedf89; color: #93370d; font-size: 12.5px;
+}
+.link { border: 0; background: none; padding: 0; color: var(--accent); font-size: 12.5px; }
+.link:hover { text-decoration: underline; }
+footer { margin-top: 14px; display: flex; align-items: center; gap: 6px; }
+.sep, .muted { color: var(--muted); font-size: 12px; }
+.muted { margin-left: auto; }

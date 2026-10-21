@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <header>
+      <img src="../../icons/icon48.png" alt="" width="22" height="22">
+      <h1>LiveSub</h1>
+      <span id="statusDot" class="dot"></span>
+    </header>
+
+    <p id="statusText" class="status">Idle</p>
+
+    <label class="field">
+      <span>Audio language</span>
+      <select id="sourceLang"></select>
+    </label>
+
+    <label class="field">
+      <span>Translate to</span>
+      <select id="targetLang"></select>
+    </label>
+
+    <label class="check">
+      <input type="checkbox" id="showOriginal" checked>
+      <span>Show original line under the translation</span>
+    </label>
+
+    <button id="startBtn" class="primary">Start captions</button>
+    <button id="stopBtn" class="ghost" hidden>Stop</button>
+
+    <div id="keyWarning" class="warning" hidden>
+      No API key yet. LiveSub uses Groq's free tier — creating a key takes two minutes.
+      <button id="openOptionsLink" class="link">Add it in Settings</button>
+    </div>
+
+    <footer>
+      <button id="optionsBtn" class="link">Settings</button>
+      <span class="sep">·</span>
+      <span id="latency" class="muted"></span>
+    </footer>
+
+    <script src="../lib/languages.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

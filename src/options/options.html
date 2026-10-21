@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>LiveSub Settings</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="../../icons/icon48.png" alt="" width="28" height="28">
+        <h1>LiveSub settings</h1>
+      </header>
+
+      <section>
+        <h2>Groq API key</h2>
+        <p class="hint">
+          Transcription and fallback translation run on Groq's free tier: no card, no charge.
+          Create a key at <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer">console.groq.com/keys</a>
+          (sign in with Google, then “Create API Key”) and paste it here. It never leaves your browser.
+        </p>
+        <div class="row">
+          <input type="password" id="apiKey" placeholder="gsk_…" autocomplete="off">
+          <button id="saveKey" class="primary">Save</button>
+        </div>
+        <div class="row">
+          <button id="testKey" class="ghost">Test connection</button>
+          <span id="keyStatus" class="hint"></span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Models</h2>
+        <label class="field">
+          <span>Transcription model</span>
+          <select id="sttModel">
+            <option value="whisper-large-v3-turbo">Whisper Large v3 Turbo (faster, default)</option>
+            <option value="whisper-large-v3">Whisper Large v3 (most accurate)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Translation model (fallback)</span>
+          <select id="chatModel">
+            <option value="openai/gpt-oss-120b">GPT-OSS 120B (best quality, default)</option>
+            <option value="openai/gpt-oss-20b">GPT-OSS 20B (lighter)</option>
+            <option value="qwen/qwen3.8-27b">Qwen 3.8 27B</option>
+          </select>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="preferOnDevice" checked>
+          <span>Translate on-device when Chrome supports the language pair (free, unlimited, lower latency)</span>
+        </label>
+      </section>
+
+      <section>
+        <h2>Captions</h2>
+        <label class="field">
+          <span>Chunk length: <b id="chunkVal">6</b> seconds — lower is snappier, higher is gentler on the free quota</span>
+          <input type="range" id="chunkSec" min="4" max="12" step="1" value="6">
+        </label>
+      </section>
+
+      <p id="saved" class="saved" hidden>Saved.</p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

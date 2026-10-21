@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "LiveSub - Live Captions & Translation",
+  "version": "0.1.0",
+  "description": "Live captions for any tab: transcribes video/livestream audio and shows on-screen subtitles in the original language plus a translation in the language you choose.",
+  "permissions": ["tabCapture", "offscreen", "storage", "activeTab", "scripting"],
+  "host_permissions": ["https://api.groq.com/*"],
+  "background": { "service_worker": "src/background.js" },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_page": "src/options/options.html"
+}
