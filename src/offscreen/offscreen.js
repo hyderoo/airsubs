@@ -20,13 +20,16 @@ const SKIP_PATTERNS = [
 
 let mediaStream = null;
 let recorder = null;
+let audioCtx = null;
+let analyser = null;
 let running = false;
 let currentTabId = null;
 let settings = null;
 let chunkTimer = null;
-let queue = Promise.resolve(); // serialize chunk processing
+let pendingChunks = 0; // if the API falls behind, drop instead of lagging
 let lastOriginal = "";
 let repeatCount = 0;
+let recentContext = ""; // last accepted transcript, fed back as whisper's prompt
 
 const translators = new Map(); // "src->tgt" -> Translator instance or "pending"
 
@@ -45,6 +48,15 @@ async function startCapture(streamId, cfg) {
     },
     video: false
   });
+  // tabCapture reroutes the tab's audio into the stream, which silences the
+  // tab for the user. Play the captured audio back so the video stays audible.
+  audioCtx = new AudioContext();
+  const source = audioCtx.createMediaStreamSource(mediaStream);
+  source.connect(audioCtx.destination);
+  // and tap it for a lightweight silence check
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 2048;
+  source.connect(analyser);
   running = true;
   status("listening");
   recordChunk();
@@ -60,10 +72,15 @@ function recordChunk() {
   }
   recorder = rec;
   let blob = null;
+  startVadSampling();
   rec.ondataavailable = (e) => { if (e.data && e.data.size > 0) blob = e.data; };
   rec.onstop = () => {
-    if (blob && blob.size > 2000) {
-      queue = queue.then(() => processChunk(blob)).catch((e) => console.warn("chunk failed", e));
+    const maxRms = stopVadSampling();
+    if (blob && blob.size > 2000 && pendingChunks < 1 && maxRms >= 0.008) {
+      pendingChunks += 1;
+      processChunk(blob)
+        .catch((e) => console.warn("chunk failed", e))
+        .finally(() => { pendingChunks -= 1; });
     }
     if (running) recordChunk();
   };
@@ -76,13 +93,34 @@ function recordChunk() {
 function stopCapture() {
   running = false;
   if (chunkTimer) clearTimeout(chunkTimer);
+  stopVadSampling();
   try { if (recorder && recorder.state !== "inactive") recorder.stop(); } catch (_) {}
   recorder = null;
   if (mediaStream) {
     mediaStream.getTracks().forEach((t) => t.stop());
     mediaStream = null;
   }
+  if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+  analyser = null;
   translators.clear();
+}
+
+let vadTimer = null;
+let chunkMaxRms = 0;
+function startVadSampling() {
+  chunkMaxRms = 0;
+  if (!analyser) return;
+  const buf = new Float32Array(analyser.fftSize);
+  vadTimer = setInterval(() => {
+    analyser.getFloatTimeDomainData(buf);
+    let sum = 0;
+    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+    chunkMaxRms = Math.max(chunkMaxRms, Math.sqrt(sum / buf.length));
+  }, 500);
+}
+function stopVadSampling() {
+  if (vadTimer) { clearInterval(vadTimer); vadTimer = null; }
+  return chunkMaxRms; // ~ -42 dB threshold keeps quiet speech, drops true silence
 }
 
 function looksLikeNoise(text) {
@@ -103,6 +141,7 @@ async function processChunk(blob) {
   const original = (result.text || "").trim();
   const lang = result.language || settings.sourceLang || "auto";
   if (!original || looksLikeNoise(original)) return;
+  recentContext = (recentContext + " " + original).slice(-400);
 
   // drop stutter: whisper sometimes repeats the previous line verbatim
   if (original === lastOriginal) {
@@ -137,6 +176,7 @@ async function transcribe(blob) {
   form.append("model", settings.sttModel || "whisper-large-v3-turbo");
   form.append("response_format", "verbose_json");
   if (settings.sourceLang && settings.sourceLang !== "auto") form.append("language", settings.sourceLang);
+  if (recentContext) form.append("prompt", recentContext.slice(-220));
   form.append("temperature", "0");
   const res = await fetch(`${GROQ_BASE}/audio/transcriptions`, {
     method: "POST",

@@ -35,8 +35,8 @@
         letter-spacing: .1px; -webkit-line-clamp: 2;
       }
       .orig {
-        font-size: calc(var(--fs, 24px) * 0.58); font-weight: 500; line-height: 1.35;
-        color: rgba(255,255,255,.78); margin-top: 4px; -webkit-line-clamp: 1;
+        font-size: calc(var(--fs, 24px) * 0.68); font-weight: 500; line-height: 1.35;
+        color: rgba(255,255,255,.88); margin-top: 4px; -webkit-line-clamp: 1;
       }
       .orig.hidden { display: none; }
       .with-bg .trans, .with-bg .orig {

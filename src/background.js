@@ -8,8 +8,8 @@ async function ensureOffscreen() {
   if (!has) {
     await chrome.offscreen.createDocument({
       url: "src/offscreen/offscreen.html",
-      reasons: ["USER_MEDIA"],
-      justification: "Capture tab audio for live transcription and translation."
+      reasons: ["USER_MEDIA", "AUDIO_PLAYBACK"],
+      justification: "Capture tab audio for live transcription and translation, and play it back so the tab stays audible while captioning."
     });
   }
 }
