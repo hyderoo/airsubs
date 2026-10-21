@@ -115,7 +115,7 @@
   try {
     chrome.storage.local.get(["fontScale", "captionBg"]).then((s) => {
       if (s.fontScale) scale = Math.min(1.8, Math.max(0.6, s.fontScale));
-      applyBg(s.captionBg !== false);
+      applyBg(!!s.captionBg);
       anchor();
     });
     chrome.storage.onChanged.addListener((changes) => {

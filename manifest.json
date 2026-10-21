@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AirSubs - Live Captions & Translation",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Live captions for any tab: transcribes video/livestream audio and shows on-screen subtitles in the original language plus a translation in the language you choose.",
   "permissions": ["tabCapture", "offscreen", "storage", "activeTab", "scripting"],
   "host_permissions": ["https://api.groq.com/*"],
