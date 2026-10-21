@@ -39,6 +39,11 @@
         color: rgba(255,255,255,.78); margin-top: 4px; -webkit-line-clamp: 1;
       }
       .orig.hidden { display: none; }
+      .with-bg .trans, .with-bg .orig {
+        background: rgba(0,0,0,.5); padding: 2px 10px; border-radius: 6px;
+        -webkit-box-decoration-break: clone; box-decoration-break: clone;
+        text-shadow: none;
+      }
       .swap .trans, .swap .orig { opacity: 0; transform: translateY(5px); }
       .notice {
         display: none; margin-top: 6px; font-size: 12.5px; color: #ffd37a;
@@ -106,6 +111,23 @@
   let showOriginal = true;
   let manualPos = null; // {left, top} once the user drags
 
+  function applyBg(on) { lines.classList.toggle("with-bg", !!on); }
+  try {
+    chrome.storage.local.get(["fontScale", "captionBg"]).then((s) => {
+      if (s.fontScale) scale = Math.min(1.8, Math.max(0.6, s.fontScale));
+      applyBg(s.captionBg);
+      anchor();
+    });
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes.fontScale) { scale = Math.min(1.8, Math.max(0.6, changes.fontScale.newValue || 1)); anchor(); }
+      if (changes.captionBg) applyBg(changes.captionBg.newValue);
+    });
+  } catch (_) {}
+
+  function persistScale() {
+    try { chrome.storage.local.set({ fontScale: scale }); } catch (_) {}
+  }
+
   // ---- video anchoring ----
   function findVideo() {
     const scope = document.fullscreenElement || document;
@@ -135,7 +157,7 @@
     wrap.style.top = rect.bottom - Math.max(rect.height * 0.07, 28) + "px";
     wrap.style.maxWidth = Math.min(rect.width * 0.86, window.innerWidth * 0.8) + "px";
     // Netflix-like scale: caption size tracks the player size
-    const fs = Math.min(38, Math.max(16, rect.height * 0.048)) * scale;
+    const fs = Math.min(30, Math.max(14, rect.height * 0.036)) * scale;
     wrap.style.setProperty("--fs", fs.toFixed(1) + "px");
   }
 
@@ -205,8 +227,8 @@
     origEl.classList.toggle("hidden", !showOriginal || !origEl.textContent);
     shadow.getElementById("origToggle").classList.toggle("active", showOriginal);
   });
-  shadow.getElementById("bigger").addEventListener("click", () => { scale = Math.min(1.8, scale + 0.15); anchor(); });
-  shadow.getElementById("smaller").addEventListener("click", () => { scale = Math.max(0.6, scale - 0.15); anchor(); });
+  shadow.getElementById("bigger").addEventListener("click", () => { scale = Math.min(1.8, scale + 0.15); anchor(); persistScale(); });
+  shadow.getElementById("smaller").addEventListener("click", () => { scale = Math.max(0.6, scale - 0.15); anchor(); persistScale(); });
   shadow.getElementById("close").addEventListener("click", () => { host.style.display = "none"; });
   shadow.getElementById("save").addEventListener("click", () => {
     if (!transcript.length) return;

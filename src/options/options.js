@@ -1,5 +1,5 @@
 const $ = (id) => document.getElementById(id);
-const KEYS = ["apiKey", "sttModel", "chatModel", "preferOnDevice", "chunkSec"];
+const KEYS = ["apiKey", "sttModel", "chatModel", "preferOnDevice", "chunkSec", "fontScale", "captionBg"];
 
 async function load() {
   const s = await chrome.storage.local.get(KEYS);
@@ -9,6 +9,9 @@ async function load() {
   $("preferOnDevice").checked = s.preferOnDevice !== false;
   $("chunkSec").value = s.chunkSec || 6;
   $("chunkVal").textContent = $("chunkSec").value;
+  $("fontScale").value = Math.round((s.fontScale || 1) * 100);
+  $("scaleVal").textContent = $("fontScale").value;
+  $("captionBg").checked = !!s.captionBg;
 }
 
 async function save() {
@@ -17,17 +20,21 @@ async function save() {
     sttModel: $("sttModel").value,
     chatModel: $("chatModel").value,
     preferOnDevice: $("preferOnDevice").checked,
-    chunkSec: Number($("chunkSec").value)
+    chunkSec: Number($("chunkSec").value),
+    fontScale: Number($("fontScale").value) / 100,
+    captionBg: $("captionBg").checked
   });
   $("saved").hidden = false;
   setTimeout(() => { $("saved").hidden = true; }, 1500);
 }
 
 $("saveKey").addEventListener("click", save);
-for (const id of ["sttModel", "chatModel", "preferOnDevice", "chunkSec"]) {
+for (const id of ["sttModel", "chatModel", "preferOnDevice", "chunkSec", "captionBg"]) {
   $(id).addEventListener("change", save);
 }
 $("chunkSec").addEventListener("input", () => { $("chunkVal").textContent = $("chunkSec").value; });
+$("fontScale").addEventListener("input", () => { $("scaleVal").textContent = $("fontScale").value; });
+$("fontScale").addEventListener("change", save);
 
 $("testKey").addEventListener("click", async () => {
   const el = $("keyStatus");

@@ -58,6 +58,14 @@
           <span>Chunk length: <b id="chunkVal">6</b> seconds — lower is snappier, higher is gentler on the free quota</span>
           <input type="range" id="chunkSec" min="4" max="12" step="1" value="6">
         </label>
+        <label class="field">
+          <span>Caption size: <b id="scaleVal">100</b>%</span>
+          <input type="range" id="fontScale" min="60" max="180" step="10" value="100">
+        </label>
+        <label class="check">
+          <input type="checkbox" id="captionBg">
+          <span>Add a subtle background behind the text (helps on bright videos)</span>
+        </label>
       </section>
 
       <p id="saved" class="saved" hidden>Saved.</p>
