@@ -1,4 +1,4 @@
-# LiveSub — Live Captions & Translation
+# AirSubs — Live Captions & Translation
 
 A Chrome extension that captions any tab in real time. It listens to the audio
 of the tab you are on — YouTube, Twitch, a livestream, a lecture recording —
@@ -26,14 +26,14 @@ translation into the language you pick.
 1. Clone or download this repo.
 2. Open `chrome://extensions`, enable **Developer mode**.
 3. **Load unpacked** → select this folder.
-4. Click the LiveSub icon → **Settings** and paste your Groq API key
+4. Click the AirSubs icon → **Settings** and paste your Groq API key
    (free — create one at <https://console.groq.com/keys>, sign in with Google,
    "Create API Key"; takes about two minutes, no card required).
 
 ## Use
 
 1. Open the tab with the video or livestream and start playback.
-2. Click the LiveSub icon → pick the audio language (Auto-detect works) and
+2. Click the AirSubs icon → pick the audio language (Auto-detect works) and
    the translation target → **Start captions**.
 3. Subtitles appear on the page a few seconds behind the audio.
 

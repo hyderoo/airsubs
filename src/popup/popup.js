@@ -17,7 +17,7 @@ let settings = { ...DEFAULTS };
 function fillLanguages() {
   const src = $("sourceLang");
   const tgt = $("targetLang");
-  for (const [code, name] of Object.entries(LIVESUB_LANGUAGES)) {
+  for (const [code, name] of Object.entries(AIRSUBS_LANGUAGES)) {
     src.append(new Option(name, code));
     if (code !== "auto") tgt.append(new Option(name, code));
   }

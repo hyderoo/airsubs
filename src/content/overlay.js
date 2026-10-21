@@ -1,14 +1,14 @@
-// LiveSub caption overlay, Netflix-style: plain outlined text floating over
+// AirSubs caption overlay, Netflix-style: plain outlined text floating over
 // the video, no panel. Anchors to the largest visible <video>, follows it
 // into fullscreen, controls appear only on hover.
 (() => {
-  if (window.__livesubOverlay) {
-    window.__livesubOverlay.wake();
+  if (window.__airsubsOverlay) {
+    window.__airsubsOverlay.wake();
     return;
   }
 
   const host = document.createElement("div");
-  host.id = "livesub-host";
+  host.id = "airsubs-host";
   const shadow = host.attachShadow({ mode: "closed" });
 
   shadow.innerHTML = `
@@ -241,7 +241,7 @@
     const blob = new Blob([srt], { type: "text/plain;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `livesub-transcript-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.srt`;
+    a.download = `airsubs-transcript-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.srt`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   });
@@ -268,7 +268,7 @@
 
   anchor();
 
-  window.__livesubOverlay = {
+  window.__airsubsOverlay = {
     wake() { host.style.display = ""; anchor(); }
   };
 })();

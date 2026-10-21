@@ -1,4 +1,4 @@
-// LiveSub offscreen document.
+// AirSubs offscreen document.
 // Owns the captured tab-audio stream, chops it into chunks, transcribes each
 // chunk with Groq Whisper and translates the result (on-device Translator API
 // when the pair is supported, otherwise the Groq chat model).
@@ -160,8 +160,8 @@ async function translate(text, detectedLang) {
     }
   }
 
-  const srcName = LIVESUB_LANGUAGES[src] || src;
-  const tgtName = LIVESUB_LANGUAGES[tgt] || tgt;
+  const srcName = AIRSUBS_LANGUAGES[src] || src;
+  const tgtName = AIRSUBS_LANGUAGES[tgt] || tgt;
   const res = await fetch(`${GROQ_BASE}/chat/completions`, {
     method: "POST",
     headers: {

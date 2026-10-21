@@ -1,6 +1,6 @@
 // Whisper language codes (ISO 639-1) with display names.
 // Used for both the audio language picker and the translation target picker.
-const LIVESUB_LANGUAGES = {
+const AIRSUBS_LANGUAGES = {
   auto: "Auto-detect",
   en: "English",
   id: "Indonesian",
@@ -102,4 +102,4 @@ const LIVESUB_LANGUAGES = {
   yi: "Yiddish",
   yo: "Yoruba"
 };
-if (typeof module !== "undefined") module.exports = { LIVESUB_LANGUAGES };
+if (typeof module !== "undefined") module.exports = { AIRSUBS_LANGUAGES };

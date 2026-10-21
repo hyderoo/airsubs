@@ -1,4 +1,4 @@
-// LiveSub background service worker.
+// AirSubs background service worker.
 // Coordinates the popup, the offscreen audio document and the content overlay.
 
 const sessions = new Map(); // tabId -> { state, detail, updatedAt }
