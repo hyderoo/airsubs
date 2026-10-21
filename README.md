@@ -13,6 +13,9 @@ translation into the language you pick.
   microphone involved, so it works with headphones and muted speakers.
 - **~100 source languages** — Whisper Large v3 (Turbo) detects the spoken
   language automatically, or pin it yourself.
+- **Three accuracy modes** — Fast (Turbo draft only), Balanced (instant draft,
+  quietly replaced by Whisper Large v3's more accurate read a moment later),
+  Accurate (Large v3 only).
 - **Two-line subtitles** — translation on top, original line underneath
   (toggleable). Drag the caption box anywhere; it remembers its place per site.
 - **On-device translation when possible** — uses Chrome's built-in Translator
@@ -43,9 +46,16 @@ Designed to run at $0 on Groq's free tier:
 
 | Piece | What it uses | Free allowance |
 | --- | --- | --- |
-| Transcription | `whisper-large-v3-turbo` | 20 req/min, 2,000 req/day, 7,200 audio-sec/hour, 28,800 audio-sec/day (~8 h/day) |
+| Transcription (Fast / draft pass) | `whisper-large-v3-turbo` | 20 req/min, 2,000 req/day, 7,200 audio-sec/hour, 28,800 audio-sec/day (~8 h/day) |
+| Transcription (Accurate / refinement pass) | `whisper-large-v3` | same free allowance, counted separately per model |
 | Translation (primary) | Chrome's on-device Translator API | unlimited |
 | Translation (fallback) | `openai/gpt-oss-120b` | 30 req/min, 1,000 req/day, 200K tokens/day |
+
+Balanced mode transcribes and translates every chunk twice. The transcription
+side is fine (each model has its own free quota), but when Chrome can't
+translate on-device, the fallback chat model's 1,000 free requests/day lasts
+roughly 45-60 minutes of continuous captions. Pick Fast or Accurate for long
+sessions in that case.
 
 Notes:
 

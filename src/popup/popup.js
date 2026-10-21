@@ -8,6 +8,7 @@ const DEFAULTS = {
   sttModel: "whisper-large-v3-turbo",
   chatModel: "openai/gpt-oss-120b",
   preferOnDevice: true,
+  accuracyMode: "balanced",
   apiKey: ""
 };
 
@@ -31,6 +32,7 @@ async function load() {
   $("sourceLang").value = settings.sourceLang;
   $("targetLang").value = settings.targetLang;
   $("showOriginal").checked = settings.showOriginal;
+  $("accuracyMode").value = settings.accuracyMode;
   $("keyWarning").hidden = !!settings.apiKey;
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -56,10 +58,12 @@ $("startBtn").addEventListener("click", async () => {
   settings.sourceLang = $("sourceLang").value;
   settings.targetLang = $("targetLang").value;
   settings.showOriginal = $("showOriginal").checked;
+  settings.accuracyMode = $("accuracyMode").value;
   await chrome.storage.local.set({
     sourceLang: settings.sourceLang,
     targetLang: settings.targetLang,
-    showOriginal: settings.showOriginal
+    showOriginal: settings.showOriginal,
+    accuracyMode: settings.accuracyMode
   });
   if (!settings.apiKey) { $("keyWarning").hidden = false; return; }
 

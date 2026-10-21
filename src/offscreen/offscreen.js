@@ -129,24 +129,22 @@ function looksLikeNoise(text) {
   return SKIP_PATTERNS.some((re) => re.test(t));
 }
 
-async function processChunk(blob) {
+const FAST_MODEL = () => settings.sttModel || "whisper-large-v3-turbo";
+const SLOW_MODEL = "whisper-large-v3";
+let chunkCounter = 0;
+
+async function acceptAndEmit(blob, model, pass, chunkId, langHint) {
   const t0 = Date.now();
-  let result;
-  try {
-    result = await transcribe(blob);
-  } catch (e) {
-    handleApiError(e, "transcription");
-    return;
-  }
+  const result = await transcribe(blob, model, langHint);
   const original = (result.text || "").trim();
-  const lang = result.language || settings.sourceLang || "auto";
-  if (!original || looksLikeNoise(original)) return;
+  const lang = result.language || langHint || settings.sourceLang || "auto";
+  if (!original || looksLikeNoise(original)) return null;
   recentContext = (recentContext + " " + original).slice(-400);
 
   // drop stutter: whisper sometimes repeats the previous line verbatim
-  if (original === lastOriginal) {
+  if (pass !== "final" && original === lastOriginal) {
     repeatCount += 1;
-    if (repeatCount >= 1) return;
+    if (repeatCount >= 1) return null;
   } else {
     repeatCount = 0;
     lastOriginal = original;
@@ -163,19 +161,48 @@ async function processChunk(blob) {
   chrome.runtime.sendMessage({
     type: "CAPTION",
     tabId: currentTabId,
+    id: chunkId,
+    pass,
     original,
     translated,
     lang,
     latencyMs: Date.now() - t0
   }).catch(() => {});
+  return { original, lang };
 }
 
-async function transcribe(blob) {
+async function processChunk(blob) {
+  const mode = settings.accuracyMode || "balanced";
+  const chunkId = ++chunkCounter;
+  if (mode === "accurate") {
+    try { await acceptAndEmit(blob, SLOW_MODEL, "final", chunkId); }
+    catch (e) { handleApiError(e, "transcription"); }
+    return;
+  }
+  // fast pass first
+  let first = null;
+  try {
+    first = await acceptAndEmit(blob, FAST_MODEL(), mode === "balanced" ? "draft" : "final", chunkId);
+  } catch (e) {
+    handleApiError(e, "transcription");
+    return;
+  }
+  // balanced: refine with large-v3, replacing the draft line when it lands.
+  // Detached so it never delays the next chunk; the overlay ignores it if a
+  // newer line is already showing.
+  if (mode === "balanced" && first) {
+    acceptAndEmit(blob, SLOW_MODEL, "final", chunkId, first.lang !== "auto" ? first.lang : undefined)
+      .catch((e) => console.warn("refine pass failed", e));
+  }
+}
+
+async function transcribe(blob, model, langHint) {
   const form = new FormData();
   form.append("file", blob, "chunk.webm");
-  form.append("model", settings.sttModel || "whisper-large-v3-turbo");
+  form.append("model", model);
   form.append("response_format", "verbose_json");
-  if (settings.sourceLang && settings.sourceLang !== "auto") form.append("language", settings.sourceLang);
+  const lang = (settings.sourceLang && settings.sourceLang !== "auto") ? settings.sourceLang : langHint;
+  if (lang) form.append("language", lang);
   if (recentContext) form.append("prompt", recentContext.slice(-220));
   form.append("temperature", "0");
   const res = await fetch(`${GROQ_BASE}/audio/transcriptions`, {

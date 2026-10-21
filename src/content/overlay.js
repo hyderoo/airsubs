@@ -45,6 +45,7 @@
         text-shadow: none;
       }
       .swap .trans, .swap .orig { opacity: 0; transform: translateY(5px); }
+      .lines.draft .trans, .lines.draft .orig { opacity: .68; }
       .notice {
         display: none; margin-top: 6px; font-size: 12.5px; color: #ffd37a;
         text-shadow: 0 1px 3px rgba(0,0,0,.8);
@@ -107,6 +108,7 @@
 
   const transcript = [];
   let lastLine = null;
+  let currentId = null;
   let scale = 1;
   let showOriginal = true;
   let manualPos = null; // {left, top} once the user drags
@@ -174,9 +176,13 @@
   setInterval(() => { syncFullscreenParent(); anchor(); }, 800);
 
   // ---- captions ----
-  function setLine(original, translated) {
+  function setLine(original, translated, id, pass) {
+    // a late "final" only replaces the draft it belongs to; if a newer line
+    // is already on screen, the stale refinement is dropped
+    if (pass === "final" && id != null && currentId != null && id !== currentId) return;
+    const isReplace = id != null && id === currentId;
     const now = Date.now();
-    if (lastLine) lastLine.end = now;
+    if (lastLine && !isReplace) lastLine.end = now;
     lines.classList.add("swap");
     setTimeout(() => {
       const main = translated || original;
@@ -184,7 +190,14 @@
       origEl.textContent = translated && translated !== original ? original : "";
       origEl.classList.toggle("hidden", !showOriginal || !origEl.textContent);
       lines.classList.remove("swap");
-    }, 120);
+      lines.classList.toggle("draft", pass === "draft");
+    }, isReplace ? 0 : 120);
+    if (id != null) currentId = id;
+    if (isReplace && lastLine) {
+      lastLine.original = original;
+      lastLine.translated = translated || "";
+      return;
+    }
     lastLine = { start: now, end: now, original, translated: translated || "" };
     transcript.push(lastLine);
     noticeEl.style.display = "none";
@@ -249,7 +262,7 @@
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "CAPTION_SHOW") {
       host.style.display = "";
-      setLine(msg.original || "", msg.translated || "");
+      setLine(msg.original || "", msg.translated || "", msg.id, msg.pass);
     } else if (msg.type === "CAPTION_STATUS") {
       if (msg.state === "error" || msg.state === "rate_limited") setNotice(msg.detail || msg.state);
       else if (msg.state === "stopped") { transEl.textContent = ""; origEl.textContent = ""; setNotice("Captions stopped."); }

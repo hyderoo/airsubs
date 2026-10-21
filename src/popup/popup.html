@@ -23,6 +23,15 @@
       <select id="targetLang"></select>
     </label>
 
+    <label class="field">
+      <span>Accuracy mode</span>
+      <select id="accuracyMode">
+        <option value="balanced">Balanced: instant draft, refined a moment later</option>
+        <option value="fast">Fast: draft only, lowest delay</option>
+        <option value="accurate">Accurate: Large v3 only, slower per line</option>
+      </select>
+    </label>
+
     <label class="check">
       <input type="checkbox" id="showOriginal" checked>
       <span>Show original line under the translation</span>

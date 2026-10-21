@@ -50,6 +50,12 @@
           <input type="checkbox" id="preferOnDevice" checked>
           <span>Translate on-device when Chrome supports the language pair (free, unlimited, lower latency)</span>
         </label>
+        <p class="hint">
+          Accuracy mode is chosen in the popup. Fast and Accurate use one transcription model each
+          (~8 h/day free per model). Balanced transcribes every chunk twice (Turbo draft + Large v3
+          refinement) and translates twice, so when Chrome cannot translate on-device it burns the
+          free chat quota roughly twice as fast (about 45-60 min of continuous captions per day).
+        </p>
       </section>
 
       <section>
