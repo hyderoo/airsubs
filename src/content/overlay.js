@@ -40,7 +40,7 @@
       }
       .orig.hidden { display: none; }
       .with-bg .trans, .with-bg .orig {
-        background: rgba(0,0,0,.5); padding: 2px 10px; border-radius: 6px;
+        background: rgba(0,0,0,.62); padding: 1px 8px; border-radius: 4px;
         -webkit-box-decoration-break: clone; box-decoration-break: clone;
         text-shadow: none;
       }
@@ -115,7 +115,7 @@
   try {
     chrome.storage.local.get(["fontScale", "captionBg"]).then((s) => {
       if (s.fontScale) scale = Math.min(1.8, Math.max(0.6, s.fontScale));
-      applyBg(s.captionBg);
+      applyBg(s.captionBg !== false);
       anchor();
     });
     chrome.storage.onChanged.addListener((changes) => {
@@ -157,7 +157,7 @@
     wrap.style.top = rect.bottom - Math.max(rect.height * 0.07, 28) + "px";
     wrap.style.maxWidth = Math.min(rect.width * 0.86, window.innerWidth * 0.8) + "px";
     // Netflix-like scale: caption size tracks the player size
-    const fs = Math.min(30, Math.max(14, rect.height * 0.036)) * scale;
+    const fs = Math.min(28, Math.max(13, rect.height * 0.027)) * scale;
     wrap.style.setProperty("--fs", fs.toFixed(1) + "px");
   }
 

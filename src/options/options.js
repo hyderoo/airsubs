@@ -11,7 +11,7 @@ async function load() {
   $("chunkVal").textContent = $("chunkSec").value;
   $("fontScale").value = Math.round((s.fontScale || 1) * 100);
   $("scaleVal").textContent = $("fontScale").value;
-  $("captionBg").checked = !!s.captionBg;
+  $("captionBg").checked = s.captionBg !== false;
 }
 
 async function save() {
