@@ -32,7 +32,7 @@
       }
       .trans {
         font-size: var(--fs, 24px); font-weight: 700; line-height: 1.32;
-        letter-spacing: .1px; -webkit-line-clamp: 2;
+        letter-spacing: .1px; -webkit-line-clamp: var(--maxl, 2);
       }
       .orig {
         font-size: calc(var(--fs, 24px) * 0.68); font-weight: 500; line-height: 1.35;
@@ -111,7 +111,7 @@
   let currentId = null;
   let scale = 1;
   let showOriginal = true;
-  let manualPos = null; // {left, top} anchor point once the user drags
+  let manualPos = null; // {x, y} anchor point (center x, bottom y) once the user drags
 
   function applyBg(on) { lines.classList.toggle("with-bg", !!on); }
   try {
@@ -145,10 +145,27 @@
     return videos[0];
   }
 
+  // widest box that stays fully on screen when centered on the anchor, so a
+  // long line wraps instead of sliding off the nearer screen edge
+  function manualMaxWidth(x) {
+    const fit = 2 * Math.min(x, window.innerWidth - x) - 16;
+    return Math.max(144, Math.min(window.innerWidth * 0.8, fit)) + "px";
+  }
+
+  function applyManual() {
+    wrap.style.left = manualPos.x + "px";
+    wrap.style.top = manualPos.y + "px";
+    const mw = manualMaxWidth(manualPos.x);
+    wrap.style.maxWidth = mw;
+    // near an edge the box gets narrow: let captions use more lines there
+    // instead of cutting the sentence off with an ellipsis
+    const w = parseInt(mw, 10);
+    wrap.style.setProperty("--maxl", w < 260 ? "6" : w < 480 ? "4" : "2");
+  }
+
   function anchor() {
     if (manualPos) {
-      wrap.style.left = manualPos.left;
-      wrap.style.top = manualPos.top;
+      applyManual();
       return;
     }
     const v = findVideo();
@@ -158,6 +175,7 @@
     wrap.style.left = rect.left + rect.width / 2 + "px";
     wrap.style.top = rect.bottom - Math.max(rect.height * 0.07, 28) + "px";
     wrap.style.maxWidth = Math.min(rect.width * 0.86, window.innerWidth * 0.8) + "px";
+    wrap.style.setProperty("--maxl", "2");
     // Netflix-like scale: caption size tracks the player size
     const fs = Math.min(28, Math.max(13, rect.height * 0.027)) * scale;
     wrap.style.setProperty("--fs", fs.toFixed(1) + "px");
@@ -224,11 +242,10 @@
   grip.addEventListener("pointermove", (e) => {
     if (!dragging) return;
     manualPos = {
-      left: Math.max(60, Math.min(window.innerWidth - 60, e.clientX - dragX)) + "px",
-      top: Math.max(40, Math.min(window.innerHeight, e.clientY - dragY)) + "px"
+      x: Math.max(80, Math.min(window.innerWidth - 80, e.clientX - dragX)),
+      y: Math.max(40, Math.min(window.innerHeight, e.clientY - dragY))
     };
-    wrap.style.left = manualPos.left;
-    wrap.style.top = manualPos.top;
+    applyManual();
   });
   grip.addEventListener("pointerup", () => { dragging = false; });
   grip.addEventListener("dblclick", () => {
