@@ -111,7 +111,7 @@
   let currentId = null;
   let scale = 1;
   let showOriginal = true;
-  let manualPos = null; // {left, top} once the user drags
+  let manualPos = null; // {left, top} anchor point once the user drags
 
   function applyBg(on) { lines.classList.toggle("with-bg", !!on); }
   try {
@@ -209,28 +209,30 @@
   }
 
   // ---- drag (manual until double-click on the grip) ----
+  // The manual position is stored as the caption's anchor point (horizontal
+  // center, bottom edge), the same point the auto anchor uses. New lines then
+  // re-center around the spot the user picked instead of growing sideways
+  // from a fixed left edge, so long text stops shifting the caption around.
   let dragging = false, dragX = 0, dragY = 0;
   grip.addEventListener("pointerdown", (e) => {
     dragging = true;
     const r = wrap.getBoundingClientRect();
-    dragX = e.clientX - r.left;
-    dragY = e.clientY - r.top;
+    dragX = e.clientX - (r.left + r.width / 2);
+    dragY = e.clientY - r.bottom;
     grip.setPointerCapture(e.pointerId);
   });
   grip.addEventListener("pointermove", (e) => {
     if (!dragging) return;
     manualPos = {
-      left: Math.max(0, Math.min(window.innerWidth - 60, e.clientX - dragX)) + "px",
-      top: Math.max(0, Math.min(window.innerHeight - 30, e.clientY - dragY)) + "px"
+      left: Math.max(60, Math.min(window.innerWidth - 60, e.clientX - dragX)) + "px",
+      top: Math.max(40, Math.min(window.innerHeight, e.clientY - dragY)) + "px"
     };
     wrap.style.left = manualPos.left;
     wrap.style.top = manualPos.top;
-    wrap.style.transform = "none";
   });
   grip.addEventListener("pointerup", () => { dragging = false; });
   grip.addEventListener("dblclick", () => {
     manualPos = null;
-    wrap.style.transform = "translate(-50%, -100%)";
     anchor();
   });
 
